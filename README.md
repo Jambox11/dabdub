@@ -66,6 +66,17 @@ cargo test
 - **CI** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) — runs `cargo test`, coverage (tarpaulin), and a WASM build on every push/PR.
 - **Deploy** ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) — builds and optimises WASMs, then deploys to Stellar testnet on merges to `main` and to mainnet on version tags (manual approval required).
 
+### CI build caching
+
+CI caches the Cargo registry (`~/.cargo/registry`, `~/.cargo/git`) and the workspace `target/` directory via `actions/cache`. The cache key is derived from a hash of `dupdapp_contract/Cargo.lock`, so dependency changes invalidate the cache while unrelated commits reuse it (with `restore-keys` fallback for partial hits).
+
+Expected CI build time:
+
+| Scenario | Approx. duration |
+|---|---|
+| Cold cache (no cache hit) | ~8–12 min |
+| Warm cache (registry + target restored) | ~2–4 min |
+
 ## Monitoring
 
 Grafana/Loki/Promtail configs under [`grafana/`](grafana/) and [`docker-compose.yml`](docker-compose.yml) are provided for local observability tooling; see [`monitoring/`](monitoring/) for uptime/status-page setup.

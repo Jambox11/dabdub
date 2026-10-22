@@ -21,6 +21,22 @@ jobs:
         with:
           targets: wasm32v1-none
 
+      # Cache the cargo registry (downloaded crate sources) and the workspace
+      # target directory so dependencies are not re-downloaded and recompiled
+      # on every run. The key is derived from the Cargo.lock hash so the cache
+      # is invalidated whenever the dependency graph changes; restore-keys
+      # provide a fallback so partial rebuilds still benefit.
+      - name: Cache cargo registry and target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            dabdub_contracts/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('dabdub_contracts/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
       - name: Install cargo-tarpaulin
         uses: taiki-e/install-action@v2
         with:
